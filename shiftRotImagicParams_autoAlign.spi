@@ -1,0 +1,67 @@
+;;;;;
+
+FR
+?Input the rotation & shift file from IMAGIC? <param>
+
+FR
+?Input particle-micrograph list? <micros>
+
+FR
+?Input basename of the output from ctfTilt_Parser.py? <ctftilt>
+
+;;;;;
+
+UD N [numParts]
+<param>
+
+SD IC NEW
+incore_angular
+3,[numParts]
+
+do lb1 [part]=1,[numParts]
+
+	UD IC [part] [particle] [micro]
+	<micros>
+	
+;	IF([micro].EQ.114) GOTO lb1
+
+;	IF([micro].EQ.111) GOTO lb1
+
+	[one]=1
+
+	UD FIND [key] [micros] [def1] [def2] [angAstig] [TiltAxis] [TiltAngle]
+	<ctftilt>_tilt
+	([one]),[micro]
+
+	UD FIND [key2] [micros2] [def12] [def22] [angAstig2] [TiltAxis2] [TiltAngle2]
+	<ctftilt>_untilt
+	([one]),[micro]
+
+	UD IC [part] [MRApsi]
+	<param>
+
+	[CalcPsi]= [TiltAxis2] - 270 - [MRApsi]
+
+	[CalcTheta]= [TiltAngle] - [TiltAngle2]	;micro_01 - micro_00
+
+	[CalcPhi] = 90 - [TiltAxis]
+
+	SD IC [part] [CalcPsi] [CalcTheta] [CalcPhi]
+	incore_angular
+
+lb1
+
+UD ICE
+<ctftilt>
+
+UD ICE
+<member>
+
+UD ICE
+<param>
+
+SD IC COPY
+incore_angular
+<ctftilt>_angular
+
+en 

@@ -1,0 +1,144 @@
+;;;;;
+
+FR
+?Input the rotation & shift file from IMAGIC? <param>
+
+FR
+?Input the class membership file from IMAGIC? <member>
+
+FR
+?Input particle-micrograph list? <micros>
+
+FR
+?Input basename of the output from ctfTilt_Parser.py? <ctftilt>
+
+;;;;;
+
+UD N [numParts]
+<param>
+
+SD IC NEW
+incore_angular
+3,[numParts]
+
+do lb1 [part]=1,[numParts]
+
+	UD IC [part] [particle] [micro]
+	<micros>
+	
+;	IF([micro].EQ.114) GOTO lb1
+
+;	IF([micro].EQ.111) GOTO lb1
+
+	[one]=1
+
+	UD FIND [key] [micros] [def1] [def2] [angAstig] [TiltAxis] [TiltAngle]
+	<ctftilt>_tilt
+	([one]),[micro]
+
+	UD FIND [key2] [micros2] [def12] [def22] [angAstig2] [TiltAxis2] [TiltAngle2]
+	<ctftilt>_untilt
+	([one]),[micro]
+
+	UD IC [part] [MRApsi]
+	<param>
+
+	;Tilt should be +45
+	;Untilt should be -45
+
+	IF([TiltAngle].LT.0) THEN
+
+		[TiltAngle]=-[TiltAngle]
+		[[TiltAxis]=[TiltAxis]-180
+
+	ENDIF
+
+	IF([TiltAngle2].GT.0) THEN
+
+		[TiltAngle2]=-[TiltAngle2]
+		[[TiltAxis2]=[TiltAxis2]-180
+
+	ENDIF
+
+	[CalcPsi]= [TiltAxis2] - 90 - [MRApsi]
+
+	[CalcTheta]= [TiltAngle2] - [TiltAngle]	;micro_01 - micro_00
+
+	[CalcPhi] = 90 - [TiltAxis]
+
+	SD IC [part] [CalcPhi] [CalcTheta] [CalcPsi]
+	incore_angular
+
+	UD IC [part] [class]
+	<member>
+
+	IF([micro].EQ.114) GOTO lb1
+	IF([micro].EQ.111) GOTO lb1
+
+	IQ FI [selExists]
+	sel_class{***[class]}
+
+	IF([selExists].EQ.1)THEN
+
+		UD N [tots]
+		sel_class{***[class]}
+
+		[lastLine]=[tots]+1
+
+		SD IC NEW
+		incore_sel
+		1,[lastLine]	
+
+		do lb2 [new]=1,[tots]
+
+			UD IC [new] [newpart]
+			sel_class{***[class]}
+	
+			SD IC [new] [newpart]
+			incore_sel
+
+			IF([new].EQ.[tots])THEN
+
+				SD IC [lastLine] [part]
+				incore_sel
+	
+			ENDIF
+	
+		lb2
+
+		UD ICE
+		sel_class{***[class]}
+
+		DE
+		sel_class{***[class]}
+
+		SD IC COPY
+		incore_sel
+		sel_class{***[class]}
+
+		SD ICE
+		incore_sel		
+
+	ELSE
+
+		SD [one] [part]
+		sel_class{***[class]}
+
+	ENDIF
+
+lb1
+
+UD ICE
+<ctftilt>
+
+UD ICE
+<member>
+
+UD ICE
+<param>
+
+SD IC COPY
+incore_angular
+<ctftilt>_angular
+
+en 

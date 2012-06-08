@@ -1,0 +1,126 @@
+;;;;;;
+
+FR
+?Input basename of select files? <basename>
+
+FR
+?Input tilted stack? <stack>
+
+RR [tots]
+?Number of classums?
+
+FR
+?Angular file? <angular>
+
+FR
+?Output folder? <output>
+
+RR [pixSize]
+?Pixel size?
+
+RR [boxSize]
+?Box size?
+
+;;;;;
+
+MD
+SET MP
+
+
+[radius]=0.6*([boxSize]/2)
+
+[res]=50
+
+[filt]=[pixSize]/[res]
+
+[bandP]=[filt]-0.025
+[stopB]=[filt]+0.025
+
+VM
+mkdir <output>
+
+do lb1 [avg]=1,[tots]
+
+	VM
+	mkdir <output>/3D_classums{***[avg]}
+
+	BP 3F
+	<stack>@****
+	<basename>{***[avg]}
+	<angular>
+	*
+	<output>/3D_classum{***[avg]}
+
+	FQ
+	<output>/3D_classum{***[avg]}
+	<output>/3D_classum{***[avg]}_fq{**[res]}_iter01
+	(7)
+	[bandP],[stopB]
+
+	UD N [numPartsclass]
+	<basename>{***[avg]}
+
+	do lb3 [loop]=1,5
+
+		[next]=[loop]+1
+
+		;Center models
+
+		PJ 3Q
+		<output>/3D_classum{***[avg]}_fq{**[res]}_iter{**[loop]}
+		[radius]
+		<basename>{***[avg]}
+		<angular>
+		<output>/3D_classums{***[avg]}/prj_classum{***[avg]}_iter{**[loop]}@****
+
+		do lb2 [part]=1,[numPartsclass]
+	
+			UD IC [part] [selPart]
+			<basename>{***[avg]}
+	
+			CC N
+			<stack>@{*****[selPart]}
+			<output>/3D_classums{***[avg]}/prj_classum{***[avg]}_iter{**[loop]}@{****[selPart]}
+			_5
+			
+			PK [x] [y] [Peak]
+			_5
+			(1)
+	
+			SH 
+			<stack>@{*****[selPart]}
+			<output>/3D_classums{***[avg]}/temp{*****[selPart]}
+			-[x],-[y]
+
+			SD [selPart] [x] [y] [Peak]
+			<output>/3D_classums{***[avg]}/shifts_iter{**[loop]}
+	
+		lb2
+
+		SD E
+		<output>/3D_classums{***[avg]}/shifts_iter{**[loop]}	
+
+		UD ICE
+		<basename>{***[avg]}
+
+		BP 3F
+		<output>/3D_classums{***[avg]}/temp*****
+		<basename>{***[avg]}
+		<angular>
+		*
+		<output>/3D_classum{***[avg]}_iter{**[next]}
+		
+		FQ
+		<output>/3D_classum{***[avg]}_iter{**[next]}
+		<output>/3D_classum{***[avg]}_fq{**[res]}_iter{**[next]}
+		(7)
+		[bandP],[stopB]
+
+	lb3
+
+	VM
+	rm <output>/3D_classums{***[avg]}/temp*
+
+lb1
+
+en d

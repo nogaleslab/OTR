@@ -1,0 +1,125 @@
+;;;;;;;;
+
+FR
+?Input MRA angle output from IMAGIC? <mra>
+
+FR
+?Input select file basename? <sel>
+
+RR [numAvgs]
+?Number of averages?
+
+FR
+?Name of output stack? <output>
+
+;;;;;;;;;
+
+MD
+() OFF
+
+UD N [numParts]
+<mra>
+
+;Generate select file
+
+[one]=1
+
+
+
+;;Calculate angles, generate new text file and make MRA angula plot;;;
+
+do lb11 [avg]=1,[numAvgs]
+
+	UD N [numPartsClass]
+	<sel>{***[avg]}
+
+	SD IC NEW
+	incore_angle
+	2,([numPartsClass]*2)
+
+	PT
+	mraPlot{***[avg]}
+	128,128
+	P
+	1
+	64,64
+	N
+
+	do lb12 [particle]=1,[numPartsClass]
+
+		UD IC [particle] [select]
+		<sel>{***[avg]}
+
+		UD IC [select] [angle]
+		<mra>
+	
+		IF([angle].LT.0) THEN
+	
+			[angle]=360+[angle]
+	
+		ENDIF
+
+		[x1]=(64+(64*COS([angle])))
+		[y1]=(64+(64*SIN([angle])))
+
+		[oppositeAngle]=[angle]+180
+
+		IF([oppositeAngle].GT.360)THEN
+
+			[oppositeAngle]=[oppositeAngle]-360
+
+		ENDIF
+
+		[x2]=(64+(64*COS([oppositeAngle])))
+		[y2]=(64+(64*SIN([oppositeAngle])))
+		
+		[first]=(2*[particle])-1
+		[second]=[first]+1
+
+		SD IC [first] [x1] [y1]
+		incore_angle
+	
+		SD IC [second] [x2] [y2]
+		incore_angle
+
+		PT
+		mraPlot{***[avg]}
+		L
+		[x1],[y1]
+		[x2],[y2]
+		N
+		
+	lb12
+
+	SD IC COPY
+	incore_angle
+	mraPlot_angles{***[avg]}
+
+	SD ICE
+	incore_angle
+
+	UD ICE
+	<sel>{***[avg]}
+
+	UD ICE
+`	<mra>
+lb11
+
+;;make output stack;;;
+
+do lb21 [indiv]=1,[numAvgs]
+
+	CP
+	mraPlot{***[indiv]}
+	<output>@{***[indiv]}
+	
+	DE
+	mraPlot{***[indiv]}
+
+	DE
+	mraPlot_angles{***[indiv]}
+
+lb21
+
+en d
+

@@ -1,0 +1,42 @@
+;;;;;;
+
+FR
+?Input basename of select files? <basename>
+
+FR
+?Input tilted stack? <stack>
+
+RR [tots]
+?Number of classums?
+
+FR
+?Angular file? <angular>
+
+RR [pixSize]
+?Pixel size?
+
+;;;;;
+
+[filt]=[pixSize]/50
+
+[bandP]=[filt]-0.025
+[stopB]=[filt]+0.025
+
+do lb1 [avg]=1,[tots]
+
+	BP 3F
+	<stack>@****
+	<basename>{***[avg]}
+	<angular>
+	*
+	3D_classum{***[avg]}
+
+	FQ
+	3D_classum{***[avg]}
+	3D_classum{***[avg]}_fq50
+	(7)
+	[bandP],[stopB]
+
+lb1
+
+en d
