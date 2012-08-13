@@ -7,10 +7,10 @@ FR
 ?Input the class membership file from IMAGIC? <member>
 
 FR
-?Input particle-micrograph list? <micros>
+?Input parameter file for untilted (0 or -45 degrees) particles? <untilt>
 
 FR
-?Input basename of the output from ctfTilt_Parser.py? <ctftilt>
+?Input parameter file for tilted (+45 degrees) particles? <tilt>
 
 ;;;;;
 
@@ -23,22 +23,11 @@ incore_angular
 
 do lb1 [part]=1,[numParts]
 
-	UD IC [part] [particle] [micro]
-	<micros>
-	
-;	IF([micro].EQ.114) GOTO lb1
+	UD IC [part] [def1] [def2] [angAstig] [TiltAxis] [TiltAngle]
+	<tilt>
 
-;	IF([micro].EQ.111) GOTO lb1
-
-	[one]=1
-
-	UD FIND [key] [micros] [def1] [def2] [angAstig] [TiltAxis] [TiltAngle]
-	<ctftilt>_tilt
-	([one]),[micro]
-
-	UD FIND [key2] [micros2] [def12] [def22] [angAstig2] [TiltAxis2] [TiltAngle2]
-	<ctftilt>_untilt
-	([one]),[micro]
+	UD IC [part] [def12] [def22] [angAstig2] [TiltAxis2] [TiltAngle2]
+	<untilt>
 
 	UD IC [part] [MRApsi]
 	<param>
@@ -71,9 +60,6 @@ do lb1 [part]=1,[numParts]
 
 	UD IC [part] [class]
 	<member>
-
-	IF([micro].EQ.114) GOTO lb1
-	IF([micro].EQ.111) GOTO lb1
 
 	IQ FI [selExists]
 	sel_class{***[class]}
@@ -128,8 +114,6 @@ do lb1 [part]=1,[numParts]
 
 lb1
 
-UD ICE
-<ctftilt>
 
 UD ICE
 <member>
