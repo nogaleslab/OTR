@@ -21,6 +21,7 @@ SD IC NEW
 incore_angular
 3,[numParts]
 
+[one] = 1
 do lb1 [part]=1,[numParts]
 
 	UD IC [part] [def1] [def2] [angAstig] [TiltAxis] [TiltAngle]
@@ -38,14 +39,14 @@ do lb1 [part]=1,[numParts]
 	IF([TiltAngle].LT.0) THEN
 
 		[TiltAngle]=-[TiltAngle]
-		[[TiltAxis]=[TiltAxis]-180
+		[TiltAxis]=[TiltAxis]-180
 
 	ENDIF
 
 	IF([TiltAngle2].GT.0) THEN
 
 		[TiltAngle2]=-[TiltAngle2]
-		[[TiltAxis2]=[TiltAxis2]-180
+		[TiltAxis2]=[TiltAxis2]-180
 
 	ENDIF
 
